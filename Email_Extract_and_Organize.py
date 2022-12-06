@@ -2,14 +2,19 @@ import os
 import extract_msg
 import pandas as pd
 
-directory = 'Data'
+directory = '' # path to root directory of messages
 
 def extract_message_contents(file, directory="."):
     # returns dictionary of key data from a message at directory/file
-    msg = extract_msg.Message(f"{directory}/{file}")
+    path = f"{directory}/{file}"
+    msg = extract_msg.Message(path)
     msg = msg.getJson()
     msg = pd.read_json(msg, typ='series')
-    contents = {"file": f"=hyperlink(\"{directory}/{file}\")"}
+    # long formulas cant be written to xlsx so if too long print path as string
+    if len(path) < 241: 
+        contents = {"file": f"=hyperlink(\"{path}\")"}
+    else:
+        contents = {"file": path}
     contents.update(msg)
     return contents
 
@@ -29,14 +34,14 @@ for subdir, dirs, files in os.walk(directory):
 df = pd.DataFrame(all_emails)
 df = df.set_index('file')
 df['date'] = pd.to_datetime(df['date'], utc=True)
-df['date'] = localize_naive_datetime(df['date'], "US/Eastern") 
+df['date'] = localize_naive_datetime(df['date'], "US/Eastern")
 
 # drop duplicates
 df = df.drop_duplicates(subset=["from", "date", "body"])
 
 # write df to xlsx
 with pd.ExcelWriter(
-    "data.xlsx",
+    "All_Emails.xlsx",
     datetime_format="YYYY-MM-DD HH:MM:SS"
 ) as writer:
-    df.to_excel(writer)  
+    df.to_excel(writer)
