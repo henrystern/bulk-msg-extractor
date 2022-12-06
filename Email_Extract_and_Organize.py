@@ -28,7 +28,8 @@ for subdir, dirs, files in os.walk(directory):
 # create df and set dtypes for easier handling in excel
 df = pd.DataFrame(all_emails)
 df = df.set_index('file')
-df['date'] = localize_naive_datetime(pd.to_datetime(df['date'], utc=True), "US/Eastern") 
+df['date'] = pd.to_datetime(df['date'], utc=True)
+df['date'] = localize_naive_datetime(df['date'], "US/Eastern") 
 
 # write df to xlsx
 with pd.ExcelWriter(
