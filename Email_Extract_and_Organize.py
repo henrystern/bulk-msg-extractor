@@ -34,6 +34,9 @@ def recursive_extract_emails(directory, output_directory="."):
 
 directory = '' # path to root directory of messages
 
+output_directory = 'out'
+output_name = 'All_Emails.xlsx'
+
 raw_data = recursive_extract_emails(directory)
 
 # create df and set dtypes for easier handling in excel
@@ -47,7 +50,7 @@ df = df.drop_duplicates(subset=["from", "date", "body"])
 
 # write df to xlsx
 with pd.ExcelWriter(
-    "out/All_Emails.xlsx",
+    f"{output_directory}/{output_name}",
     datetime_format="YYYY-MM-DD HH:MM:SS"
 ) as writer:
     df.to_excel(writer)
