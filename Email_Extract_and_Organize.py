@@ -2,8 +2,6 @@ import os
 import extract_msg
 import pandas as pd
 
-directory = '' # path to root directory of messages
-
 def extract_message_contents(file, directory="."):
     # returns dictionary of key data from a message at directory/file
     path = f"{directory}/{file}"
@@ -22,16 +20,23 @@ def localize_naive_datetime(series, tz):
     # makes datetime tz unaware with localized time
     return series.dt.tz_convert(tz).dt.tz_localize(None)
 
-all_emails = []
-# recurse through directory and append each emails data to all_email list
-for subdir, dirs, files in os.walk(directory):
-    for file in files:
-        if file.endswith(".msg"):
-            file_contents = extract_message_contents(file, subdir)
-            all_emails.append(file_contents)
+def recursive_extract_emails(directory):
+    # recurse through directory and append each emails data to all_email list
+    all_emails = []
+    for subdir, dirs, files in os.walk(directory):
+        for file in files:
+            if file.endswith(".msg"):
+                file_contents = extract_message_contents(file, subdir)
+                all_emails.append(file_contents)
+    return all_emails
+
+
+directory = '' # path to root directory of messages
+
+raw_data = recursive_extract_emails(directory)
 
 # create df and set dtypes for easier handling in excel
-df = pd.DataFrame(all_emails)
+df = pd.DataFrame(raw_data)
 df = df.set_index('file')
 df['date'] = pd.to_datetime(df['date'], utc=True)
 df['date'] = localize_naive_datetime(df['date'], "US/Eastern")
@@ -41,7 +46,7 @@ df = df.drop_duplicates(subset=["from", "date", "body"])
 
 # write df to xlsx
 with pd.ExcelWriter(
-    "All_Emails.xlsx",
+    "out/All_Emails.xlsx",
     datetime_format="YYYY-MM-DD HH:MM:SS"
 ) as writer:
     df.to_excel(writer)
