@@ -31,6 +31,10 @@ df = df.set_index('file')
 df['date'] = pd.to_datetime(df['date'], utc=True)
 df['date'] = localize_naive_datetime(df['date'], "US/Eastern") 
 
+# drop duplicates
+df = df.drop_duplicates(subset=["from", "date", "body"])
+
+
 # write df to xlsx
 with pd.ExcelWriter(
     "data.xlsx",
