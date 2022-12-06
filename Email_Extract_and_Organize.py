@@ -10,7 +10,8 @@ def extract_message_contents(file, directory="."):
     msg = pd.read_json(msg, typ='series')
     # long formulas cant be written to xlsx so if too long print path as string
     # TODO this should create the link relative to output path not the script working directory
-    if len(path) < 241: 
+    # set to 1 because it was faster to just fix the long links in vba from strings
+    if len(path) < 1: 
         contents = {"file": f"=hyperlink(\"{path}\")"}
     else:
         contents = {"file": path}
