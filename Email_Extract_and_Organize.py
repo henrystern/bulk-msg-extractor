@@ -9,6 +9,7 @@ def extract_message_contents(file, directory="."):
     msg = msg.getJson()
     msg = pd.read_json(msg, typ='series')
     # long formulas cant be written to xlsx so if too long print path as string
+    # TODO this should create the link relative to output path not the script working directory
     if len(path) < 241: 
         contents = {"file": f"=hyperlink(\"{path}\")"}
     else:
@@ -20,7 +21,7 @@ def localize_naive_datetime(series, tz):
     # makes datetime tz unaware with localized time
     return series.dt.tz_convert(tz).dt.tz_localize(None)
 
-def recursive_extract_emails(directory):
+def recursive_extract_emails(directory, output_directory="."):
     # recurse through directory and append each emails data to all_email list
     all_emails = []
     for subdir, dirs, files in os.walk(directory):
