@@ -25,6 +25,22 @@ def main(search_directory, output_path):
 
     print("Done!")
 
+def recursive_extract_emails(search_directory):
+    # recurse through directory and append each email's data to all_email list
+    all_emails = []
+    old_subdir = ""
+    print("Scanning: ", end="\r")
+    for subdir, _, files in os.walk(search_directory):
+        #progress - TODO doesn't work for some strings, seems to be length related
+        print(" " * (len(old_subdir) + 10), end="\r")
+        print(f"Scanning: {subdir}", end="\r")
+        old_subdir = subdir
+        
+        for file in files:
+            if file.endswith(".msg"):
+                file_contents = extract_message_contents(file, subdir)
+                all_emails.append(file_contents)
+    return all_emails
 
 def extract_message_contents(file, search_directory="."):
     # returns dictionary of key data from a message at search_directory/file
@@ -43,29 +59,9 @@ def extract_message_contents(file, search_directory="."):
     contents.update(msg)
     return contents
 
-
 def localize_naive_datetime(series, tz):
     # makes datetime tz unaware with localized time
     return series.dt.tz_convert(tz).dt.tz_localize(None)
-
-
-def recursive_extract_emails(search_directory):
-    # recurse through directory and append each emails data to all_email list
-    all_emails = []
-    old_subdir = ""
-    print("Scanning: ", end="\r")
-    for subdir, _, files in os.walk(search_directory):
-        #progress TODO doesn't work for some strings, seems to be length related
-        print(" " * (len(old_subdir) + 10), end="\r")
-        print(f"Scanning: {subdir}", end="\r")
-        old_subdir = subdir
-        
-        for file in files:
-            if file.endswith(".msg"):
-                file_contents = extract_message_contents(file, subdir)
-                all_emails.append(file_contents)
-    return all_emails
-
 
 if __name__ == "__main__":
     # TODO these path operations aren't quite right
@@ -73,6 +69,9 @@ if __name__ == "__main__":
         "Enter the path of the output file (absolute or relative to script path, default .\\out\\extracted_msg.xlsx): ") or ".\\out\\extracted_msg.xlsx"
     os.chdir(os.path.dirname(__file__))
     os.chdir(os.path.dirname(os.path.abspath(output_path)))
+
     search_directory = input(
         "Enter the path of the search directory (absolute or relative to output path, default .\\Data): ") or ".\\Data"
+
+    # TODO options for dropping duplicates, default tz etc
     main(search_directory, output_path)
