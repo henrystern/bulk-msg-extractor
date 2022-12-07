@@ -15,7 +15,7 @@ def main(search_directory, output_path):
 
     # drop duplicates
     df = df.drop_duplicates(subset=["from", "date", "body"])
-    print("Writing to file...")
+    print("\nWriting to file...")
     # write df to xlsx
     with pd.ExcelWriter(
         f"{output_path}",
@@ -23,7 +23,7 @@ def main(search_directory, output_path):
     ) as writer:
         df.to_excel(writer)
 
-    print("Completed!")
+    print("Done!")
 
 
 def extract_message_contents(file, search_directory="."):
@@ -35,9 +35,9 @@ def extract_message_contents(file, search_directory="."):
     # long formulas cant be written to xlsx so if too long print path as string
     # TODO this should create the link relative to output path not the script working directory
     file_link = "path too long" if len(
-        path) > 200 else f"=hyperlink(\"{path}\", \"link\")"
+        path) > 210 else f"=hyperlink(\"{path}\", \"link\")"
     directory_link = "path too long" if len(
-        path) > 200 else f"=hyperlink(\"{search_directory}\", \"link\")"
+        path) > 210 else f"=hyperlink(\"{search_directory}\", \"link\")"
     contents = {"file": file, "file_link": file_link,
                 "directory": search_directory, "directory_link": directory_link}
     contents.update(msg)
@@ -52,7 +52,14 @@ def localize_naive_datetime(series, tz):
 def recursive_extract_emails(search_directory):
     # recurse through directory and append each emails data to all_email list
     all_emails = []
-    for subdir, dirs, files in os.walk(search_directory):
+    old_subdir = ""
+    print("Scanning: ", end="\r")
+    for subdir, _, files in os.walk(search_directory):
+        #progress
+        print(" " * (len(old_subdir) + 10), end="\r")
+        print(f"Scanning: {subdir}", end="\r")
+        old_subdir = subdir
+        
         for file in files:
             if file.endswith(".msg"):
                 file_contents = extract_message_contents(file, subdir)
