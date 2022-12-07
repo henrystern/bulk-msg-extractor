@@ -68,8 +68,9 @@ def recursive_extract_emails(search_directory):
 
 
 if __name__ == "__main__":
-    search_directory = input(
-        "Enter the path of the search directory (default .\\Data): ") or ".\\Data"
     output_path = input(
-        "Enter the path of the output file (default .\\out\\extracted_msg.xlsx): ") or ".\\out\\extracted_msg.xlsx"
+        "Enter the path of the output file (absolute or relative to script path, default .\\out\\extracted_msg.xlsx): ") or ".\\out\\extracted_msg.xlsx"
+    os.chdir(output_path)
+    search_directory = input(
+        "Enter the path of the search directory (absolute or relative to output path, default .\\Data): ") or ".\\Data"
     main(search_directory, output_path)
