@@ -34,8 +34,10 @@ def extract_message_contents(file, search_directory="."):
     msg = pd.read_json(msg, typ='series')
     # long formulas cant be written to xlsx so if too long print path as string
     # TODO this should create the link relative to output path not the script working directory
-    file_link = "path too long" if len(path) > 200 else f"=hyperlink(\"{path}\", \"link\")"
-    directory_link = "path too long" if len(path) > 200 else f"=hyperlink(\"{search_directory}\", \"link\")"
+    file_link = "path too long" if len(
+        path) > 200 else f"=hyperlink(\"{path}\", \"link\")"
+    directory_link = "path too long" if len(
+        path) > 200 else f"=hyperlink(\"{search_directory}\", \"link\")"
     contents = {"file": file, "file_link": file_link,
                 "directory": search_directory, "directory_link": directory_link}
     contents.update(msg)
