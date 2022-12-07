@@ -34,9 +34,9 @@ def extract_message_contents(file, search_directory="."):
     msg = pd.read_json(msg, typ='series')
     # long formulas cant be written to xlsx so if too long print path as string
     # TODO this should create the link relative to output path not the script working directory
-    file_link = "path too long" if len(
+    file_link = f"(path too long) {path}" if len(
         path) > 210 else f"=hyperlink(\"{path}\", \"link\")"
-    directory_link = "path too long" if len(
+    directory_link = f"(path too long) {search_directory}" if len(
         path) > 210 else f"=hyperlink(\"{search_directory}\", \"link\")"
     contents = {"file": file, "file_link": file_link,
                 "directory": search_directory, "directory_link": directory_link}
@@ -55,7 +55,7 @@ def recursive_extract_emails(search_directory):
     old_subdir = ""
     print("Scanning: ", end="\r")
     for subdir, _, files in os.walk(search_directory):
-        #progress
+        #progress TODO doesn't work for some strings, seems to be length related
         print(" " * (len(old_subdir) + 10), end="\r")
         print(f"Scanning: {subdir}", end="\r")
         old_subdir = subdir
