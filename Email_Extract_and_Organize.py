@@ -4,6 +4,7 @@ import pandas as pd
 
 
 def main(search_directory, output_path):
+    print("Processing...")
     raw_data = recursive_extract_emails(search_directory)
 
     # create df and set dtypes for easier handling in excel
@@ -14,13 +15,15 @@ def main(search_directory, output_path):
 
     # drop duplicates
     df = df.drop_duplicates(subset=["from", "date", "body"])
-
+    print("Writing to file...")
     # write df to xlsx
     with pd.ExcelWriter(
         f"{output_path}",
         datetime_format="YYYY-MM-DD HH:MM:SS"
     ) as writer:
         df.to_excel(writer)
+
+    print("Completed!")
 
 
 def extract_message_contents(file, search_directory="."):
@@ -31,8 +34,10 @@ def extract_message_contents(file, search_directory="."):
     msg = pd.read_json(msg, typ='series')
     # long formulas cant be written to xlsx so if too long print path as string
     # TODO this should create the link relative to output path not the script working directory
-    contents = {"file": file, "file_link": f"=hyperlink(\"{path}\", \"{file}\"",
-                "directory": search_directory, "directory_link": f"=hyperlink(\"{search_directory}\")"}
+    file_link = "path too long" if len(path) > 200 else f"=hyperlink(\"{path}\", \"link\")"
+    directory_link = "path too long" if len(path) > 200 else f"=hyperlink(\"{search_directory}\", \"link\")"
+    contents = {"file": file, "file_link": file_link,
+                "directory": search_directory, "directory_link": directory_link}
     contents.update(msg)
     return contents
 
@@ -55,7 +60,7 @@ def recursive_extract_emails(search_directory):
 
 if __name__ == "__main__":
     search_directory = input(
-        "Enter the path of the search directory (default ./Data): ") or "./Data"
+        "Enter the path of the search directory (default .\\Data): ") or ".\\Data"
     output_path = input(
-        "Enter the path of the output file (default ./out/extracted_msg.xlsx): ") or "./out/all_emails.xlsx"
+        "Enter the path of the output file (default .\\out\\extracted_msg.xlsx): ") or ".\\out\\extracted_msg.xlsx"
     main(search_directory, output_path)
